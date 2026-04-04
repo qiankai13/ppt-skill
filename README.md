@@ -1,6 +1,6 @@
 # ppt-skill
 
-This repo contains the `pptx-bojo` Codex skill for creating and editing `.pptx` decks in a constrained Bojo presentation style.
+This repo contains the pptx-bojo Codex skill for creating and editing .pptx decks with a highly constrained, ultra-minimal presentation style.
 
 ## Install
 
