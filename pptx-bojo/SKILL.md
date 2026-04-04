@@ -65,11 +65,15 @@ If the user reports that a change is not visible, treat that as a failed iterati
 - margins under `0.5"` from slide edges
 - inconsistent alignment between repeated elements
 - row text that is not visually centered
+- text boxes inside rows whose `y`/`h` do not match the full row geometry
 - rows that are technically aligned but still feel vertically cramped
+- row dividers that do not touch the row edge cleanly and leave a visible gap
+- visually distinct gray regions that sit so close together they read as one block
 - bottom rows or footer content extending past the visible slide area
 - leftover placeholder text or unused template elements
 - overuse of accent color, bold, or visual noise
-- dotted separators that still look like normal dashes
+- row dividers that use dots or dashes instead of thin solid rules
+- table striping that starts on the first data row instead of the second
 - width changes that are technically present but visually imperceptible
 
 If no issue is obvious on first pass, look again. Deck QA is a bug hunt, not a confirmation ritual.
@@ -79,7 +83,9 @@ If no issue is obvious on first pass, look again. Deck QA is a bug hunt, not a c
 - description-heavy slides with no hierarchy
 - equal-width columns despite unequal content volume
 - floating divider lines separated from the content block they belong to
+- row text vertically nudged inside a shorter text box instead of centered against the full row box
 - panels or rows whose text is off-center because `margin: 0` was omitted
+- summary bands or footers that visually merge with the panels above them because the inter-group gap is too small
 - wrapped rows that still use compact single-line height
 - unused vertical slide space while dense tables are still cramped
 - tables that improve breathing room by overflowing off-canvas

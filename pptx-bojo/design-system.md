@@ -14,7 +14,7 @@ Every visual element must carry information. If removing it loses no meaning, re
 | Muted text | `#666666`, regular | Secondary details |
 | Light panel | `#F2F2F2`, no border, no shadow | Group related content |
 | Dark panel | `#555555` | Image placeholder only |
-| Divider line | Continuous small-dot divider, `#CCCCCC` | Separate rows or sections |
+| Divider line | Solid, `#CCCCCC`, 0.5-0.75pt | Separate rows or sections |
 | Structural line | Solid, `#1A1A1A`, 1pt | Hard boundaries only |
 | Accent color | `#1B6FE8`, once per slide max | Single hero datapoint |
 
@@ -51,8 +51,9 @@ Hierarchy comes from size and weight, not decoration.
 
 - Default content width is `9.0"` inside `0.5"` left/right margins on 16:9 slides.
 - Use white space as grouping signal: within-group gaps stay tight, between-group gaps stay visibly larger.
+- Distinct content groups must remain visually separable. If two gray panels or bands touch closely enough to read as one block, the grouping is wrong.
 - Divider lines belong to the content block below or beside them. They should not float inside empty space.
-- Row separators should read as continuous small dots, not short dashes.
+- Row separators should be thin solid rules. Do not use dots or dashes.
 - Do not assign equal column widths by default. Width must follow content volume.
 - If dense columns feel cramped while an outer column leaves visibly excessive blank area, rebalance the columns. The content block should feel evenly tensioned across the full width, including the right edge.
 
@@ -102,10 +103,24 @@ Use these rules whenever a table or stacked content block grows tall:
 
 ## Divider Rules
 
-- Row dividers must look like a chain of small dots, not a dashed rule.
-- If the line renderer produces dash-like output, do not accept it. Build the divider manually from repeated small circles.
-- Dot dividers should span the full content block width and maintain even spacing.
-- Use solid lines only for top and bottom structural boundaries.
+- Use thin solid rules for row dividers.
+- Do not use dotted, dashed, or circle-built separators.
+- Divider lines must span the full content block width and align to the row geometry.
+- Use darker solid lines only for top and bottom structural boundaries.
+
+## Group Separation Rules
+
+- Apply Gestalt grouping intentionally: elements that belong together may share a panel or tight spacing; elements from different groups must be separated by visible white space.
+- Do not stack same-color panels so tightly that they visually merge into one larger shape.
+- A horizontal summary band below vertical cards must read as a separate zone, not as an extension of those cards.
+- If two adjacent gray regions would still look connected with the text removed, the layout needs more separation.
+
+## Table Striping Rules
+
+- Comparison tables should use alternating white and light-gray rows.
+- Start striping from the second data row by default. The first data row should stay white unless the user asks otherwise.
+- Header backgrounds and striped data rows must not visually merge into one block.
+- If a gray row touches another gray area and the structure becomes ambiguous, the striping is wrong.
 
 ## Alignment Rules
 
@@ -116,9 +131,9 @@ Use these rules whenever a table or stacked content block grows tall:
 
 ## Recommended Slide Types
 
-- comparison table: header row, alternating white and light-gray rows, dotted dividers, solid top and bottom frame
+- comparison table: header row, alternating white and light-gray rows, thin solid row dividers, solid top and bottom frame
 - statement slide: one title plus one or two short body lines with large whitespace
-- metrics slide: 2-4 numbers with labels and vertical dotted dividers
+- metrics slide: 2-4 numbers with labels and thin solid vertical dividers
 - process slide: horizontal sequence with thin solid connectors and short labels
 
 ## Text Box Rules
@@ -162,7 +177,9 @@ Treat these as layout failures that must be fixed before declaring success:
 
 - A user says "it looks unchanged"
 - The intended improvement cannot be identified at a glance
-- Dot dividers still read like normal dashes
+- Row dividers use dots or dashes instead of thin solid rules
+- Header fill and the first striped row visually merge into one gray block
+- Two separate gray content groups visually merge because spacing between them is too small
 - A dense center column still feels cramped while an edge column has visible spare width
 - Width changes exist numerically but are not perceptible visually
 - Multi-line rows still use single-line height

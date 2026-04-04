@@ -91,38 +91,49 @@ slide.addText("仅 4 个 App 保留独立入口", {
   valign: "middle", margin: 0,
 });
 
-addDotDivider(slide, 0.5, 2.45, 9.0);
+addRowRule(slide, 0.5, 2.45, 9.0);
 ```
 
 Prefer rectangles and lines. Only use another shape when it directly encodes information.
-For row separators, prefer manually built dot dividers. Do not rely on dash styles if the renderer turns them into ordinary dashes.
+For row separators, use thin solid rules. Do not use dotted or dashed separators.
 
 For row-based table layouts, do not apply manual vertical offsets at all. Match the text box `y` and `h` to the panel row and rely on `valign: "middle"` for centering.
 
-## Dot Divider Helper
+## Row Rule Helper
 
-Use repeated circles instead of a dashed line when visual fidelity matters:
+Use a thin solid line for row separation:
 
 ```javascript
-function addDotDivider(slide, x, y, w, opts = {}) {
-  const dot = opts.dot ?? 0.028;
-  const gap = opts.gap ?? 0.075;
+function addRowRule(slide, x, y, w, opts = {}) {
   const color = opts.color ?? "CCCCCC";
-  const count = Math.floor((w + gap) / (dot + gap));
-  for (let i = 0; i < count; i++) {
-    slide.addShape(pres.shapes.ELLIPSE, {
-      x: x + i * (dot + gap),
-      y,
-      w: dot,
-      h: dot,
-      fill: { color },
-      line: { color, transparency: 100 },
-    });
-  }
+  const width = opts.width ?? 0.6;
+  slide.addShape(pres.shapes.LINE, {
+    x, y, w, h: 0,
+    line: { color, width, dash: "solid" },
+  });
 }
 ```
 
 This is the preferred implementation for horizontal row dividers.
+
+## Table Striping
+
+For comparison tables:
+
+1. Keep the header on its own background block.
+2. Keep the first data row white.
+3. Start the first gray stripe on the second data row.
+4. Continue alternating after that.
+5. If the header and first striped row visually fuse together, the striping rule is wrong.
+
+## Panel Grouping
+
+When a slide has multiple gray regions:
+
+1. Decide which shapes belong to the same group before placing them.
+2. Keep within-group spacing tight and between-group spacing clearly larger.
+3. Do not let a bottom summary band sit so close to upper gray cards that they read as one combined panel.
+4. If two gray regions would still look connected after removing all text, increase the gap.
 
 ## Column Rebalancing Heuristic
 
@@ -217,5 +228,7 @@ Everything else should stay black or gray.
 - forgetting `margin: 0`
 - using bold in normal data cells
 - floating divider lines inside whitespace
-- using dash separators when the layout calls for tighter dotted row division
+- using dotted or dashed separators for row dividers
+- starting the first gray stripe on the first data row instead of the second
+- placing same-color panels so close together that separate content groups visually merge
 - decorative backgrounds, rounded cards, shadows, or icons
