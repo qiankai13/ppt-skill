@@ -35,7 +35,12 @@ Nothing else is allowed.
 
 ## Typography
 
-Use `Arial` for Chinese and mixed Chinese/Latin content. Use Calibri only as fallback.
+For Chinese or mixed Chinese/Latin content on macOS, use `PingFang SC`.
+For Chinese or mixed Chinese/Latin content on Windows, use `Microsoft YaHei` or another installed CJK sans.
+Use `Arial` only for Latin-only content.
+
+Do not set Chinese or mixed Chinese/Latin text to `Arial`.
+Arial has no CJK glyphs. In PowerPoint this forces font fallback, which often makes mixed text look like the font size is "wrong" even when the numeric point size is correct.
 
 | Level | Weight | Size | Color | Use |
 |------|--------|------|-------|-----|
@@ -47,6 +52,100 @@ Use `Arial` for Chinese and mixed Chinese/Latin content. Use Calibri only as fal
 
 Hierarchy comes from size and weight, not decoration.
 
+## Size Governance
+
+The main failure mode in generated decks is not "wrong font family". It is uncontrolled type sizing.
+Do not choose type sizes slide by slide from taste. Choose them from layout density.
+
+Use this as a hard baseline for 16:9 Bojo decks:
+
+- Full-width statement slide:
+  - title: 28-32pt
+  - subtitle/body: 13-15pt
+- Two-column slide with medium text:
+  - section header: 16-18pt
+  - body: 12-13pt
+- Three-column or dense card slide:
+  - section header: 15-17pt
+  - body: 11-12pt
+- Bottom summary band or footer-like explanatory strip:
+  - label: 14-15pt
+  - body: 11-12pt
+
+Do not start dense Chinese slides at the global L2/L3 sizes and hope `shrink` will save them.
+Pick the dense preset first, then shrink only as a fallback.
+
+Information completeness beats nominal size purity:
+
+- first expand the box if the layout allows it
+- then reflow the layout
+- then shorten labels
+- then reduce type modestly
+- only then rely on `shrink`
+
+Never solve overflow by shrinking body copy until it becomes effectively invisible.
+
+## Hierarchy Before Form
+
+Content logic comes before layout symmetry.
+
+Before choosing a slide structure, classify every block into one of these roles:
+
+- peer module
+- explanation or supporting detail
+- summary band
+- footer or caption
+
+Use visual form to express that hierarchy. Do not let form rewrite the logic.
+
+Hard rules:
+
+- If four concepts are peers, keep them in the same visual tier.
+- Do not move one peer block into a lower summary zone just because its copy is longer.
+- When peer blocks have unequal copy volume, solve with unequal widths, shorter labels, or lower dense-size presets before changing the hierarchy.
+- A summary band may explain peer modules, but must not replace one of them.
+
+The main question is not "what layout fits the text most easily". It is "what layout preserves the content logic most clearly".
+
+## Vertical Budget Allocation
+
+When a slide still has visible spare vertical space, do not let the bottom explanatory band become unreadable.
+
+Rules:
+
+- If a bottom summary band or relationship band is cramped while the main content above still has recoverable whitespace, move the upper content upward first.
+- Do not preserve generous empty space above at the cost of unreadable summary text below.
+- Vertical budget should be assigned by reading priority, not by template inertia.
+- If the title block ends and a large empty gap appears before the first meaningful content block, the slide is vertically under-tensioned and the main content should move upward.
+- Large blank space between the title divider and the first content block is a layout bug unless the slide is intentionally a statement slide.
+
+## Summary Band Rules
+
+Do not build a shallow horizontal summary band with the same stacked title-over-body geometry used for taller panels.
+
+Use a dedicated summary-band layout:
+
+- short label on the left
+- body on the right, or a single full-width line if no label is needed
+- both aligned to the band geometry itself
+- enough band height to keep the body readable at its intended size
+
+If the band is shallow, keep label and body on the same visual row.
+Do not put the label on a separate stacked tier unless the band is materially taller.
+
+## Language Tagging
+
+For Chinese or mixed Chinese/Latin text in generated PPTX:
+
+- set the text language to `zh-CN`
+- do not leave Chinese text tagged as `en-US`
+- default to `shrink text on overflow` unless the text box is intentionally single-line and has been visually verified
+- do not rely on fixed text-box heights copied from Latin layouts; Chinese text usually needs more vertical room
+- avoid narrow cards with long English labels in Chinese decks; prefer shorter Chinese labels or materially larger boxes
+
+In PowerPoint generation workflows, wrong language tagging plus Latin-only fonts is a common cause of visibly inconsistent text sizing.
+In Chinese decks, overflow and "suddenly oversized" text usually come from a second issue: fixed-height boxes with no fit strategy.
+
 ## Layout Rules
 
 - Default content width is `9.0"` inside `0.5"` left/right margins on 16:9 slides.
@@ -56,6 +155,18 @@ Hierarchy comes from size and weight, not decoration.
 - Row separators should be thin solid rules. Do not use dots or dashes.
 - Do not assign equal column widths by default. Width must follow content volume.
 - If dense columns feel cramped while an outer column leaves visibly excessive blank area, rebalance the columns. The content block should feel evenly tensioned across the full width, including the right edge.
+
+## Horizontal Balance
+
+Horizontal space must be allocated by reading structure, not by symmetry alone.
+
+Rules:
+
+- If peer modules are on the same row, they may be unequal in width, but they must still feel like peers.
+- Do not let one side of the slide feel visually abandoned just because the content technically fits.
+- If a narrow column is repeatedly shrinking labels or forcing dense wrapping while a neighboring column still has obvious spare width, the horizontal budget is wrong.
+- On non-table slides, judge horizontal balance by visual tension, not by numeric equality.
+- If the page feels left-heavy or center-heavy while the right edge looks empty, rebalance widths or move the group, not just the text.
 
 ## Table Density Rules
 
@@ -114,6 +225,8 @@ Use these rules whenever a table or stacked content block grows tall:
 - Do not stack same-color panels so tightly that they visually merge into one larger shape.
 - A horizontal summary band below vertical cards must read as a separate zone, not as an extension of those cards.
 - If two adjacent gray regions would still look connected with the text removed, the layout needs more separation.
+- If a plain-text block and a panel block are different semantic groups, do not let them sit on nearly the same vertical rhythm. The inter-group gap must be visibly larger than the within-group line rhythm.
+- When a bullet group sits above a panel group, the gap between the last bullet line and the top of the panels should read as a section break, not as the next line of the same block.
 
 ## Table Striping Rules
 

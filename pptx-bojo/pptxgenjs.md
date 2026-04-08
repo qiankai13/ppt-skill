@@ -41,13 +41,13 @@ If the change is not obvious in the rendered slide, the adjustment was too small
 ```javascript
 slide.addText("Slide Title", {
   x: 0.5, y: 0.45, w: 9, h: 0.6,
-  fontFace: "Arial", fontSize: 34, bold: true,
+  fontFace: "PingFang SC", lang: "zh-CN", fontSize: 34, bold: true, fit: "shrink",
   color: "1A1A1A", margin: 0,
 });
 
 slide.addText("Secondary explanation", {
   x: 0.5, y: 1.2, w: 9, h: 0.32,
-  fontFace: "Arial", fontSize: 14,
+  fontFace: "PingFang SC", lang: "zh-CN", fontSize: 14, fit: "shrink",
   color: "666666", margin: 0,
 });
 ```
@@ -57,6 +57,22 @@ Rules:
 - set `valign: "middle"` for row-based content
 - use `paraSpaceAfter` for bullets and paragraphs
 - reduce font size before allowing overflow
+- for Chinese or mixed Chinese/Latin text, set `lang: "zh-CN"`
+- on macOS, use `fontFace: "PingFang SC"` for Chinese or mixed Chinese/Latin text
+- use `Arial` only for Latin-only text
+- for Chinese decks, default to `fit: "shrink"` unless you have visually verified the box as safe
+- avoid reusing narrow Latin-layout title boxes for longer Chinese labels
+
+Example for Chinese or mixed Chinese/Latin content:
+
+```javascript
+slide.addText("从产品到设计到开发", {
+  x: 0.5, y: 0.45, w: 9, h: 0.6,
+  fontFace: "PingFang SC", fontSize: 34, bold: true,
+  lang: "zh-CN", fit: "shrink",
+  color: "1A1A1A", margin: 0,
+});
+```
 
 ## Bullet Lists
 
@@ -67,7 +83,7 @@ slide.addText([
   { text: "Third item", options: { bullet: true, paraSpaceAfter: 12 } },
 ], {
   x: 0.5, y: 1.6, w: 8.5, h: 2.4,
-  fontFace: "Arial", fontSize: 15, color: "1A1A1A",
+  fontFace: "PingFang SC", lang: "zh-CN", fontSize: 15, color: "1A1A1A", fit: "shrink",
   margin: 0,
 });
 ```
@@ -87,7 +103,7 @@ slide.addShape(pres.shapes.RECTANGLE, {
 
 slide.addText("仅 4 个 App 保留独立入口", {
   x: 0.5, y: rowY, w: 9.0, h: rowH,
-  fontFace: "Arial", fontSize: 15, color: "1A1A1A",
+  fontFace: "PingFang SC", lang: "zh-CN", fontSize: 15, color: "1A1A1A", fit: "shrink",
   valign: "middle", margin: 0,
 });
 
@@ -114,6 +130,73 @@ function addRowRule(slide, x, y, w, opts = {}) {
 }
 ```
 
+For generated decks, define type presets up front and reuse them:
+
+```javascript
+const TYPE = {
+  title: 30,
+  subtitle: 13.5,
+  panelTitleDense: 16,
+  panelBodyDense: 11.5,
+  panelTitleMedium: 17,
+  panelBodyMedium: 12.5,
+  summaryLabel: 15,
+  summaryBody: 11.5,
+};
+```
+
+Do not scatter raw `fontSize` numbers throughout the file when the deck uses repeated panel patterns.
+If a slide has 3 columns or more, start from the dense preset by default.
+
+Before coding the slide, define semantic slots first:
+
+```javascript
+const slots = {
+  peers: ["DESIGN.md", ".impeccable.md", "移动 UX 方法", "页面决策层"],
+  summary: "关系",
+};
+```
+
+Then choose the layout that preserves that logic.
+If all top blocks are peers, keep them on the same tier and use unequal widths before demoting one into a lower band.
+
+Run a horizontal tension check as well:
+
+- Does the content feel visually balanced across the width?
+- Is one edge carrying obvious spare space while another column is cramped?
+- Are peer modules still reading as peers even if their widths differ?
+
+If not, fix widths or group placement before shrinking type.
+
+Do not reuse a generic tall-panel helper for a shallow summary band.
+Summary bands need their own geometry.
+
+```javascript
+function addSummaryBand(slide, { x, y, w, h, label, body }) {
+  slide.addShape(pres.shapes.RECTANGLE, {
+    x, y, w, h,
+    fill: { color: "F2F2F2" },
+    line: { type: "none" },
+  });
+
+  slide.addText(label, {
+    x: x + 0.18, y: y + 0.16, w: 0.9, h: h - 0.32,
+    fontFace: "PingFang SC", lang: "zh-CN",
+    fontSize: 15, bold: true, color: "1A1A1A",
+    valign: "middle", margin: 0, fit: "shrink",
+  });
+
+  slide.addText(body, {
+    x: x + 1.15, y: y + 0.16, w: w - 1.33, h: h - 0.32,
+    fontFace: "PingFang SC", lang: "zh-CN",
+    fontSize: 11.5, color: "1A1A1A",
+    valign: "middle", margin: 0, fit: "shrink",
+  });
+}
+```
+
+If the body becomes unreadable while there is still spare vertical space above, move the main content upward and increase the band height before shrinking further.
+
 This is the preferred implementation for horizontal row dividers.
 
 ## Table Striping
@@ -134,6 +217,7 @@ When a slide has multiple gray regions:
 2. Keep within-group spacing tight and between-group spacing clearly larger.
 3. Do not let a bottom summary band sit so close to upper gray cards that they read as one combined panel.
 4. If two gray regions would still look connected after removing all text, increase the gap.
+5. Apply the same rule across text-only groups and panel groups. A bullet list above two panels is not one group just because both are content.
 
 ## Column Rebalancing Heuristic
 
@@ -171,6 +255,14 @@ Before finalizing a table slide, ask:
 - Are wrapped rows visually denser than the rest of the table?
 
 If the answer to any of these is yes, increase row height and reflow the table.
+
+For non-table slides, run a vertical tension check:
+
+- Is there a visibly dead zone between the title divider and the first real content block?
+- Does the page feel bottom-heavy even though no element technically overflows?
+- Would moving the main content upward improve balance without harming readability?
+
+If yes, reclaim that vertical space before changing type again.
 
 ## Fit To Canvas Check
 

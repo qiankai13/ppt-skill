@@ -31,6 +31,7 @@ Keep this file short. Read only the guide that matches the task.
 4. For template work, finish slide add/delete/reorder operations before content editing.
 5. For generated decks, assume the first render is wrong and run the QA loop.
 6. Do not declare success until content QA and visual QA both pass.
+7. Determine semantic hierarchy before choosing the visual form. Do not demote a peer concept into a secondary zone just because its copy is longer.
 
 ## Default Workflow
 
